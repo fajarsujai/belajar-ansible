@@ -1,0 +1,50 @@
+- name: Play 1
+  hosts: all
+  vars:
+    - env_name: "{{ env_name | default('default_env') }}"
+    - proj_name: "{{ proj_name | default('default_project') }}"
+    - u_docker: "{{ u_docker | default('u_docker') }}"
+    - p_docker: "{{ p_docker | default('p_docker') }}"
+  tasks:
+    - name: Run if env develop
+      become: true
+      become_user: root
+      block:
+        - docker_login:
+            username: "fajarsujai"
+            password: "SeptemberRain$10"
+        - command: "docker build -t {{u_docker}}/{{proj_name}}:{{env_name}} -f /home/vagrant/tools/apps/{{proj_name}}/Dockerfile --build-arg BRANCH=develop --build-arg PROJ_NAME={{proj_name}} --build-arg PORT=8001 --build-arg ."
+          register: v_docker_1
+        - command: "docker push {{u_docker}}/{{proj_name}}:{{env_name}}"
+          register: v_docker_2
+        - debug:
+            msg: 
+              - "Docker build"
+              - '{{ v_docker_1.stdout_lines }}'
+              - "Docker push"
+              - '{{ v_docker_2.stdout_lines }}'
+      when: env_name | regex_search("^[a-zA-Z0-9]+$")
+  
+    # - name: Run if env staging
+    #   become: true
+    #   become_user: root
+    #   command: "docker images"
+    #   register: v_docker
+    #   when: env_name | regex_search("^rc\-[0-9]+\.[0-9]+\.[0-9]+$")
+   
+    # - name: Run if env production
+    #   become: true
+    #   become_user: root
+    #   command: "docker images"
+    #   register: v_docker
+    #   when: env_name | regex_search("^v[0-9]+\.[0-9]+\.[0-9]+$")
+   
+
+    # - name: Default
+    #   command: "echo 'default ansible'"
+    #   register: v_docker
+    #   when: env_name == 'default'
+    # - debug:
+    #       msg: '{{ v_docker.stdout }}'
+    
+    

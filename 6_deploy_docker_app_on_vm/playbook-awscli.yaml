@@ -1,0 +1,16 @@
+- name: play aws cli
+  hosts: vagrantvm1
+  remote_user: ubuntu
+  become: true
+  tasks:
+    - name: Install awscli
+      command: "sudo apt install awscli"
+
+    - name: aws configure access_key
+      command: "aws configure set aws_access_key_id AKIAVLPW5PSKYBUI26WU"
+
+    - name: aws configure secret access key
+      command:  "aws configure set aws_secret_access_key 6BJRNTFEl5FJR0Yc56ZsVmmtQdi3/0o0MiOlHSG9se"
+
+    - name: aws configure region
+      command: "aws configure set region ap-southeast-3 --profile paramita"

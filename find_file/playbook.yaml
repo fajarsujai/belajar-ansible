@@ -1,0 +1,8 @@
+- name: Play 1
+  hosts: all
+  vars:
+  - env_proj: "{{ env_proj | defualt_('default_value') }}"
+  tasks:
+  - name: find project
+    find:
+     paths: /home/vagrant/tools/apps
