@@ -33,23 +33,25 @@
       pip:
         name: docker
     
-    - name: add group docker
-      command: "sudo groupadd docker"
+    - name: create add group docker
+      command: "sudo groupadd -f docker"
 
     - name: usermod docker
       command: "sudo usermod -aG docker $USER"
 
-    - name: newgrp docker
-      command: "newgrp docker"
+    # - name: create newgrp docker
+    #   command: "sudo newgrp docker"
+    - name: Delete network jenkins
+      command: "sudo docker network rm jenkins"
 
     - name: Create network jenkins
-      command: "docker network create jenkins"
+      command: "sudo docker network create jenkins"
 
     - name: Run Docker dind
-      command: "docker run --name jenkins-docker --rm --detach --privileged --network jenkins --network-alias docker --env DOCKER_TLS_CERTDIR=/certs --volume jenkins-docker-certs:/certs/client --volume jenkins-data:/var/jenkins_home --publish 2376:2376 docker:dind --storage-driver overlay2"
+      command: "sudo docker run --name jenkins-docker --rm --detach --privileged --network jenkins --network-alias docker --env DOCKER_TLS_CERTDIR=/certs --volume jenkins-docker-certs:/certs/client --volume jenkins-data:/var/jenkins_home --publish 2376:2376 docker:dind --storage-driver overlay2"
 
     - name: Run Jenkins Docker
-      command: "docker run --name jenkins-blueocean --restart=on-failure --detach --network jenkins --env DOCKER_HOST=tcp://docker:2376 --env DOCKER_CERT_PATH=/certs/client --env DOCKER_TLS_VERIFY=1 --publish 8080:8080 --publish 50000:50000 --volume jenkins-data:/var/jenkins_home --volume jenkins-docker-certs:/certs/client:ro fajarsujai/myjenkins-blueocean:2.387.3-1"
+      command: "sudo docker run --name jenkins-blueocean --restart=on-failure --detach --network jenkins --env DOCKER_HOST=tcp://docker:2376 --env DOCKER_CERT_PATH=/certs/client --env DOCKER_TLS_VERIFY=1 --publish 8080:8080 --publish 50000:50000 --volume jenkins-data:/var/jenkins_home --volume jenkins-docker-certs:/certs/client:ro fajarsujai/myjenkins-blueocean:2.387.3-1"
 
     - name: Docker login private ecr
       command: "aws ecr get-login-password --region ap-southeast-3 | docker login --username AWS --password-stdin 368274406549.dkr.ecr.ap-southeast-3.amazonaws.com"
