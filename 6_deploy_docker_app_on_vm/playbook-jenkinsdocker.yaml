@@ -1,13 +1,11 @@
 - name: play 1
   hosts: vagrantvm1
-  remote_user: ubuntu
+  remote_user: vagrant
   become: true
   vars:
-    create_containers: 4
-    default_container_name: vue-app
-    default_container_image: naufalafif58/vue-crud-example
-    default_container_exposed_port: 8888
-
+    image_docker_dind: docker:dind
+    image_myjenkins_blueocean: fajarsujai/myjenkins-blueocean:2.387.3-1
+    image_postgresql: postgres:15.2-alpine
   tasks:
     - name: Install aptitude using apt
       apt: name=aptitude state=latest update_cache=yes force_apt_get=yes
@@ -41,21 +39,40 @@
 
     # - name: create newgrp docker
     #   command: "sudo newgrp docker"
-    - name: Delete network jenkins
-      command: "sudo docker network rm jenkins"
 
-    - name: Create network jenkins
-      command: "sudo docker network create jenkins"
+  ################ INSTALL JENKINS###############
+  ##########Install jenkins pindah menggunakan docker compose#############
 
-    - name: Run Docker dind
-      command: "sudo docker run --name jenkins-docker --rm --detach --privileged --network jenkins --network-alias docker --env DOCKER_TLS_CERTDIR=/certs --volume jenkins-docker-certs:/certs/client --volume jenkins-data:/var/jenkins_home --publish 2376:2376 docker:dind --storage-driver overlay2"
+    # - name: Delete network jenkins
+    #   command: "sudo docker network rm jenkins"
 
-    - name: Run Jenkins Docker
-      command: "sudo docker run --name jenkins-blueocean --restart=on-failure --detach --network jenkins --env DOCKER_HOST=tcp://docker:2376 --env DOCKER_CERT_PATH=/certs/client --env DOCKER_TLS_VERIFY=1 --publish 8080:8080 --publish 50000:50000 --volume jenkins-data:/var/jenkins_home --volume jenkins-docker-certs:/certs/client:ro fajarsujai/myjenkins-blueocean:2.387.3-1"
+    # - name: Create network jenkins
+    #   command: "sudo docker network create jenkins"
 
-    - name: Docker login private ecr
-      command: "aws ecr get-login-password --region ap-southeast-3 | docker login --username AWS --password-stdin 368274406549.dkr.ecr.ap-southeast-3.amazonaws.com"
+    # - name: Pull docker dind image
+    #   docker_image:
+    #     name: "{{ image_docker_dind }}"
+    #     source: pull
     
-    - name: Docker login in jenkins container
-      command: "docker exec -it jenkins-blueocean aws ecr get-login-password --region ap-southeast-3 | docker login --username AWS --password-stdin 368274406549.dkr.ecr.ap-southeast-3.amazonaws.com"
+    # - name: Pull myjenkins-blueocean image
+    #   docker_image:
+    #     name: "{{ image_myjenkins_blueocean }}"
+    #     source: pull
+    
+    # - name: Pull postgres image
+    #   docker_image:
+    #     name: "{{ image_postgresql }}"
+    #     source: pull
+
+    # - name: Run Docker dind
+    #   command: "sudo docker run --name jenkins-docker --rm --detach --privileged --network jenkins --network-alias docker --env DOCKER_TLS_CERTDIR=/certs --volume jenkins-docker-certs:/certs/client --volume jenkins-data:/var/jenkins_home --publish 2376:2376 docker:dind --storage-driver overlay2"
+
+    # - name: Run Jenkins Docker
+    #   command: "sudo docker run --name jenkins-blueocean --restart=on-failure --detach --network jenkins --env DOCKER_HOST=tcp://docker:2376 --env DOCKER_CERT_PATH=/certs/client --env DOCKER_TLS_VERIFY=1 --publish 8080:8080 --publish 50000:50000 --volume jenkins-data:/var/jenkins_home --volume jenkins-docker-certs:/certs/client:ro fajarsujai/myjenkins-blueocean:2.387.3-1"
+
+    # - name: Docker login private ecr
+    #   command: "aws ecr get-login-password --region ap-southeast-3 | docker login --username AWS --password-stdin 368274406549.dkr.ecr.ap-southeast-3.amazonaws.com"
+    
+    # - name: Docker login in jenkins container
+    #   command: "docker exec -it jenkins-blueocean aws ecr get-login-password --region ap-southeast-3 | docker login --username AWS --password-stdin 368274406549.dkr.ecr.ap-southeast-3.amazonaws.com"
     
